@@ -1,0 +1,44 @@
+#######################################
+# Syntax Coloring timeHandling Library
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+	
+TimeHandler	KEYWORD1
+Weekday		KEYWORD1	
+DST		    KEYWORD1
+Timestamp	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+updateNTPTime	KEYWORD2
+timeStr		    KEYWORD2
+timestampStr	KEYWORD2
+timestamp	    KEYWORD2
+utc_seconds	    KEYWORD2
+milliseconds	KEYWORD2
+update		    KEYWORD2
+valid		    KEYWORD2
+timeZoneDST	    KEYWORD2
+dayOfTheWeek	KEYWORD2
+dayOfTheWeekStr	KEYWORD2
+
+#######################################
+# Structures (KEYWORD3)
+#######################################
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+WEEKDAYS			    LITERAL1
+WEEKDAYS_SHORT		    LITERAL1
+_MAX_TIME_STR_LENGTH	LITERAL1
+_MAX_DOW_STR_LENGTH	    LITERAL1
+PACKET_SIZE_NTP		    LITERAL1
+NTP_UPDATE_INTV		    LITERAL1
+NTP_TRY_INTV		    LITERAL1

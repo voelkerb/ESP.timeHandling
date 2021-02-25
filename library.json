@@ -1,0 +1,20 @@
+{
+	"name": "timeHandling",
+	"version": "0.0.9",
+	"keywords": "timing, ntp, rtc",
+	"description": "Makes time handling and time synchronization on ESP32 and ESP8266 a lot easier",
+	"authors":
+	[
+		{
+		"name": "Benjamin Voelker",
+		"email": "voelkerb@me.com",
+		"url": "http://github.com/voelkerb/ESP.timeHandling"
+		}
+	],
+	"repository":
+	{
+		"type": "git",
+		"url": "http://github.com/voelkerb/ESP.timeHandling.git"
+	},
+	"frameworks": "arduino"
+}

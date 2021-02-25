@@ -1,11 +1,10 @@
 /***************************************************
  Library for time keeping.
+ 
+ License: Creative Common V1. 
 
- Feel free to use the code as it is.
-
- Benjamin Völker, voelkerb@me.com
- Embedded Systems
- University of Freiburg, Institute of Informatik
+ Benjamin Voelker, voelkerb@me.com
+ Embedded Systems Engineer
  ****************************************************/
 
 #include "timeHandling.h"

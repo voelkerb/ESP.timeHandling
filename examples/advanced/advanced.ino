@@ -6,8 +6,8 @@
  Benjamin Voelker, voelkerb@me.com
  Embedded Systems Engineer
  ****************************************************/
-#include "timeHandling.h"
 #include "multiLogger.h"
+#include "timeHandling.h"
 
 #if defined(ESP32)
 #include "WiFi.h"
@@ -38,7 +38,7 @@ DST dstGermany = { true, 7, 3, 25, 7, 10, 25, 3600};
 
 // callback function if NTP sync happened
 void ntpSynced(unsigned int confidence);
-TimeHandler myTime(timeServer, LOCATION_TIME_OFFSET, NULL, &ntpSynced, dstGermany);
+TimeHandler myTime(timeServer, LOCATION_TIME_OFFSET, NULL, &ntpSynced, dstGermany, &logger);
 Timestamp then;
 
 void setup() {
@@ -49,8 +49,8 @@ void setup() {
   logger.setTimeGetter(&timeStr);
   
   // Connect to WiFi
-  WiFi.begin(SSID, PWD);
   logger.append("Connecting to WiFi.");
+  WiFi.begin(SSID, PWD);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     logger.append(".");

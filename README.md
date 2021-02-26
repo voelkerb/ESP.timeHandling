@@ -3,8 +3,6 @@ NTP and RTC time sync for ESP8266 and ESP32 with Arduino Environment
 
 Requirements:
 - [RTC](https://github.com/voelkerb/ESP.DS3231_RTC/)
-
-Supports:
 - [multiLogger](http://github.com/voelkerb/ESP.multiLogger) (-> see ```advanced.ino```)
 
 ```C++

@@ -24,7 +24,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #endif
-// #include <multiLogger.h>
+#include <multiLogger.h>
 #include <DS3231_RTC.h>
 
 #define _MAX_TIME_STR_LENGTH 42
@@ -70,7 +70,7 @@ class TimeHandler {
     TimeHandler(char * ntpServerName, int locationOffset, 
                 Rtc * rtc=NULL, // optional rtc 
                 void (*ntpSyncCB)(unsigned int)=NULL, // optional ntp sync callback
-                DST dst={ true, 7, 3, 25, 7, 10, 25, 3600} ); // optional Daylight saving time struct. Default: Germany
+                DST dst={ true, 7, 3, 25, 7, 10, 25, 3600}, MultiLogger * logger=NULL ); // optional Daylight saving time struct. Default: Germany
 
     // Function to call if NTP should be updated
     // If wait is false, the update is performed in a background task
@@ -169,10 +169,7 @@ class TimeHandler {
     uint32_t _tsD1;
     uint32_t _tsD2;
 
-#ifdef LOGGER_h
-    // logging instance (maybe use callback instead of object reference later)
-    MultiLogger &logger;
-#endif
+    MultiLogger * logger; 
 
     // A callback on NTP success called
     void (*_ntpSyncCB)(unsigned int confidence);

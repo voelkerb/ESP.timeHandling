@@ -10,11 +10,7 @@
 #include "timeHandling.h"
 
 // _________________________________________________________________________
-#ifdef LOGGER_h
-TimeHandler::TimeHandler(char * ntpServerName, int locationOffset, Rtc * rtc, void (*ntpSyncCB)(unsigned int), DST dst) : logger(MultiLogger::getInstance()) {
-#else
-TimeHandler::TimeHandler(char * ntpServerName, int locationOffset, Rtc * rtc, void (*ntpSyncCB)(unsigned int), DST dst) {
-#endif
+TimeHandler::TimeHandler(char * ntpServerName, int locationOffset, Rtc * rtc, void (*ntpSyncCB)(unsigned int), DST dst, MultiLogger * logger) {
   _rtc = rtc; 
 #if defined(ESP32)
   _ntpTaskHandle = NULL;
@@ -31,6 +27,7 @@ TimeHandler::TimeHandler(char * ntpServerName, int locationOffset, Rtc * rtc, vo
   _lastNTPTry = millis();
   _ntpSyncCB = ntpSyncCB;
   _dst = dst;
+  this->logger = logger;
 }
 
 
@@ -136,9 +133,7 @@ bool TimeHandler::_updateNTPTime() {
   }
   // Only on success do sth with the time
   if (success) {
-#ifdef LOGGER_h
-    logger.log(DEBUG, "Success NTP Time");
-#endif
+    if (logger != NULL) logger->log(DEBUG, "Success NTP Time");
     // Calculate new boundaries for DST
     // TODO: Is this correct?
     int startDay = _dst.startAfterDay + (7 + _dst.startdayOfWeek - _dow(ntpTime.year(), _dst.startMon, _dst.startAfterDay))%7;
@@ -161,9 +156,7 @@ bool TimeHandler::_updateNTPTime() {
         // NOTE: the problem with checking for second is that this is off pretty often due to rounding, we don't 
         // want to reset the rtc time this often, do we?
         //if (_rtc->lost or _rtc->_now.minute() != ntpTime.minute()) {
-#ifdef LOGGER_h
-          logger.log(WARNING, "RTC updated old: %s", _rtc->timeStr());
-#endif
+          if (logger != NULL) logger->log(WARNING, "RTC updated old: %s", _rtc->timeStr());
           _rtc->setTime(ntpTime);
         //}
       }
@@ -179,9 +172,7 @@ bool TimeHandler::_updateNTPTime() {
 
 // _________________________________________________________________________
 bool TimeHandler::_getTimeNTP() {
-#ifdef LOGGER_h
-  logger.log(DEBUG, "Sending NTP packet...");
-#endif
+  if (logger != NULL) logger->log(DEBUG, "Sending NTP packet...");
   WiFi.hostByName(_ntpServerName, _timeServerIP);
   // Reset all bytes in the buffer to 0
   memset(_ntpBuffer, 0, PACKET_SIZE_NTP);
@@ -212,9 +203,7 @@ bool TimeHandler::_getTimeNTP() {
     yield();
   }
   if (!cb) {
-#ifdef LOGGER_h
-    logger.log(WARNING, "No NTP response yet");
-#endif
+    if (logger != NULL) logger->log(WARNING, "No NTP response yet");
     return false;
   }
 
@@ -243,9 +232,7 @@ bool TimeHandler::_getTimeNTP() {
   _ntpTime.seconds = epoch;
   _ntpTime.milliSeconds = mssec;
   _ntpConfidence = tripDelayMs;
-#ifdef LOGGER_h
-  logger.log(INFO, "NTP Time: %s, td %u",  timeStr(_ntpTime.seconds, _ntpTime.milliSeconds), tripDelayMs);
-#endif
+  if (logger != NULL) logger->log(INFO, "NTP Time: %s, td %u",  timeStr(_ntpTime.seconds, _ntpTime.milliSeconds), tripDelayMs);
   return true;
 }
 

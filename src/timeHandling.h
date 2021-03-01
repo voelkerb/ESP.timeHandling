@@ -24,8 +24,9 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #endif
-#include <multiLogger.h>
-#include <DS3231_RTC.h>
+// Go back to src folder of sketch
+#include "../../multiLogger/src/multiLogger.h"
+#include "../../rtc/src/DS3231_RTC.h"
 
 #define _MAX_TIME_STR_LENGTH 42
 #define _MAX_DOW_STR_LENGTH 10

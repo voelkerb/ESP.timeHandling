@@ -9,6 +9,7 @@
 
 #include "timeHandling.h"
 
+
 // _________________________________________________________________________
 TimeHandler::TimeHandler(char * ntpServerName, int locationOffset, Rtc * rtc, void (*ntpSyncCB)(unsigned int), DST dst, MultiLogger * logger) {
   _rtc = rtc; 
@@ -90,7 +91,7 @@ void TimeHandler::update() {
   int32_t delta = millis()-_ntpValidMillis;
   if (delta > NTP_UPDATE_INTV && millis()-_lastNTPTry > NTP_TRY_INTV) {
     _lastNTPTry = millis();
-    if (WiFi.status() == WL_CONNECTED and WiFi.softAPgetStationNum() != 0) {
+    if (WiFi.status() == WL_CONNECTED and WiFi.isConnected()){
       // if (Network::connected and not Network::apMode) {
 #if defined(ESP32)
       updateNTPTime(false);
@@ -119,7 +120,6 @@ void TimeHandler::_startUpdateNTPTime(void * pvParameters) {
 // _________________________________________________________________________
 bool TimeHandler::_updateNTPTime() {
   bool success = _getTimeNTP();
-  
   int32_t delta = millis()-_ntpValidMillis;
 
   _currentTime.milliSeconds = _ntpTime.milliSeconds + delta%1000;
@@ -150,15 +150,17 @@ bool TimeHandler::_updateNTPTime() {
       // if an rtc is connected and we are on core 1, maybe we can correct its time
       if (xPortGetCoreID() != 0 && _rtc->connected) {
 #endif
-        // Get current rtc time
-        _rtc->update();
-        // Check if RTC time is off
-        // NOTE: the problem with checking for second is that this is off pretty often due to rounding, we don't 
-        // want to reset the rtc time this often, do we?
-        //if (_rtc->lost or _rtc->_now.minute() != ntpTime.minute()) {
-          if (logger != NULL) logger->log(WARNING, "RTC updated old: %s", _rtc->timeStr());
-          _rtc->setTime(ntpTime);
-        //}
+        if (_rtc != NULL) { 
+          // Get current rtc time
+          _rtc->update();
+          // Check if RTC time is off
+          // NOTE: the problem with checking for second is that this is off pretty often due to rounding, we don't 
+          // want to reset the rtc time this often, do we?
+          //if (_rtc->lost or _rtc->_now.minute() != ntpTime.minute()) {
+            if (logger != NULL) logger->log(WARNING, "RTC updated old: %s", _rtc->timeStr());
+            _rtc->setTime(ntpTime);
+          //}
+        }
       }
     }
 #if defined(ESP32)
@@ -172,8 +174,8 @@ bool TimeHandler::_updateNTPTime() {
 
 // _________________________________________________________________________
 bool TimeHandler::_getTimeNTP() {
-  if (logger != NULL) logger->log(DEBUG, "Sending NTP packet...");
   WiFi.hostByName(_ntpServerName, _timeServerIP);
+  if (logger != NULL) logger->log(DEBUG, "Sending NTP packet... %s, ip: %s", _ntpServerName, _timeServerIP.toString().c_str());
   // Reset all bytes in the buffer to 0
   memset(_ntpBuffer, 0, PACKET_SIZE_NTP);
   // Initialize values needed to form NTP requestjvbasd
@@ -193,14 +195,16 @@ bool TimeHandler::_getTimeNTP() {
   _udpNtp.beginPacket(_timeServerIP, 123); //NTP requests are to port 123
   _udpNtp.write(_ntpBuffer, PACKET_SIZE_NTP);
   _udpNtp.endPacket();// should flush
-  // Wait for packet to arrive with timeout of 2 seconds
+  // Wait for packet to arrive with timeout of 2 second
   int cb = _udpNtp.parsePacket();
   while(!cb) {
-    // if (start + 200 < millis()) break;
-    if (start + 100 < millis()) break;
+    if (start + 200 < millis()) break;
+    // if (start + 100 < millis()) break;
     cb = _udpNtp.parsePacket();
     delay(1);
+    #if defined(ESP32)
     yield();
+    #endif
   }
   if (!cb) {
     if (logger != NULL) logger->log(WARNING, "No NTP response yet");

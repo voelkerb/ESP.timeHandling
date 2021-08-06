@@ -92,6 +92,12 @@ class TimeHandler {
     char * timestampStr(Timestamp ts, bool shortForm=false);
     char * timestampStr(unsigned long s, unsigned long ms, bool shortForm=false);
 
+    uint8_t year();
+    uint8_t month();
+    uint8_t date();
+    uint8_t hour();
+    uint8_t minute();
+    uint8_t second();
     Timestamp timestamp();
 
     // get current seconds

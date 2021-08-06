@@ -52,6 +52,38 @@ Timestamp TimeHandler::timestamp() {
   // _currentTime.milliSeconds = _currentMilliseconds;
   return _currentTime;
 }
+
+// _________________________________________________________________________
+uint8_t TimeHandler::year() {
+  update();
+  return timeZoneDST(_currentTime.seconds).year();
+}
+// _________________________________________________________________________
+uint8_t TimeHandler::month() {
+  update();
+  return timeZoneDST(_currentTime.seconds).month();
+}
+// _________________________________________________________________________
+uint8_t TimeHandler::date() {
+  update();
+  return timeZoneDST(_currentTime.seconds).day();
+}
+// _________________________________________________________________________
+uint8_t TimeHandler::hour() {
+  update();
+  return timeZoneDST(_currentTime.seconds).hour();
+}
+// _________________________________________________________________________
+uint8_t TimeHandler::minute() {
+  update();
+  return _currentTime.seconds/60%60;
+}
+// _________________________________________________________________________
+uint8_t TimeHandler::second() {
+  update();
+  return _currentTime.seconds%60;
+}
+
 // _________________________________________________________________________
 #if defined(ESP32)
 bool TimeHandler::updateNTPTime(bool wait) {

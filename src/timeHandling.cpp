@@ -403,9 +403,9 @@ char * TimeHandler::timestampStr(bool shortForm) {
 // _________________________________________________________________________
 char * TimeHandler::timestampStr(unsigned long s, unsigned long ms, bool shortForm) {
   if (shortForm) {
-    snprintf(&_timeStampStr[0], _MAX_TIME_STR_LENGTH, "%u", s);
+    snprintf(&_timeStampStr[0], _MAX_TIME_STR_LENGTH, "%u", (uint32_t)s);
   } else {
-    snprintf(&_timeStampStr[0], _MAX_TIME_STR_LENGTH, "%u.%03u", s, ms);
+    snprintf(&_timeStampStr[0], _MAX_TIME_STR_LENGTH, "%u.%03u", (uint32_t)s, (uint32_t)ms);
   }
   return &_timeStampStr[0];
 }

@@ -19,13 +19,14 @@
 #include <time.h> 
 #if defined(ESP32)
 #include <WiFi.h>
-#include <FreeRTOS.h>
+// #include <FreeRTOS.h>
 #else
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #endif
-#include <multiLogger.h>
-#include <DS3231_RTC.h>
+// Go back to src folder of sketch
+#include "../../multiLogger/src/multiLogger.h"
+#include "../../DS3231_RTC/src/DS3231_RTC.h"
 
 #define _MAX_TIME_STR_LENGTH 42
 #define _MAX_DOW_STR_LENGTH 10
@@ -91,6 +92,12 @@ class TimeHandler {
     char * timestampStr(Timestamp ts, bool shortForm=false);
     char * timestampStr(unsigned long s, unsigned long ms, bool shortForm=false);
 
+    uint8_t year();
+    uint8_t month();
+    uint8_t date();
+    uint8_t hour();
+    uint8_t minute();
+    uint8_t second();
     Timestamp timestamp();
 
     // get current seconds

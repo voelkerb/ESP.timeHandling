@@ -19,7 +19,7 @@
 #include <time.h> 
 #if defined(ESP32)
 #include <WiFi.h>
-#include <FreeRTOS.h>
+// #include <FreeRTOS.h>
 #else
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>

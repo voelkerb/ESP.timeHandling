@@ -11,8 +11,7 @@
 
 
 // _________________________________________________________________________
-TimeHandler::TimeHandler(char * ntpServerName, int locationOffset, Rtc * rtc, void (*ntpSyncCB)(unsigned int), DST dst, MultiLogger * logger) {
-  _rtc = rtc; 
+TimeHandler::TimeHandler(char * ntpServerName, int locationOffset, void (*ntpSyncCB)(unsigned int), DST dst, MultiLogger * logger) {
 #if defined(ESP32)
   _ntpTaskHandle = NULL;
 #endif
@@ -175,31 +174,7 @@ bool TimeHandler::_updateNTPTime() {
 
     // Call synced callback if there is any
     if (_ntpSyncCB != NULL) _ntpSyncCB(_ntpConfidence);
-    // If we have an rtc connected
-    if (_rtc != NULL) {
-
-#if defined(ESP32)
-      // if an rtc is connected and we are on core 1, maybe we can correct its time
-      if (xPortGetCoreID() != 0 && _rtc->connected) {
-#endif
-        if (_rtc != NULL) { 
-          // Get current rtc time
-          _rtc->update();
-          // Check if RTC time is off
-          // NOTE: the problem with checking for second is that this is off pretty often due to rounding, we don't 
-          // want to reset the rtc time this often, do we?
-          //if (_rtc->lost or _rtc->_now.minute() != ntpTime.minute()) {
-            if (logger != NULL) logger->log(WARNING, "RTC updated old: %s", _rtc->timeStr());
-            _rtc->setTime(ntpTime);
-          //}
-        }
-      }
-    }
-#if defined(ESP32)
   }
-  // Reset task handle for freertos so that this function can be called again
-  _ntpTaskHandle = NULL;
-#endif
 
   return success;
 }
@@ -223,7 +198,7 @@ bool TimeHandler::_getTimeNTP() {
   // all NTP fields have been given values, now
   // you can send a packet requesting a timestamp:
 
-  long start = millis();
+  unsigned long start = millis();
   _udpNtp.beginPacket(_timeServerIP, 123); //NTP requests are to port 123
   _udpNtp.write(_ntpBuffer, PACKET_SIZE_NTP);
   _udpNtp.endPacket();// should flush
@@ -372,18 +347,6 @@ DateTime TimeHandler::timeZoneDST(unsigned long s) {
 // _________________________________________________________________________
 char * TimeHandler::timeStr(unsigned long s, unsigned long ms, bool shortForm) {
   // If time not valid yet, look if rtc is connected and use its time
-  if (s == 0 &&_rtc != NULL) {
-    // NOTE: Update will not work on core 0 because of I2C issues
-
-#if defined(ESP32)
-    if (xPortGetCoreID() != 0) {
-      _rtc->update(); 
-    }
-#else
-    _rtc->update(); 
-#endif
-    return timeStr(_rtc->_now, 0, shortForm);
-  }
   return timeStr(timeZoneDST(s), ms, shortForm);
 }
 

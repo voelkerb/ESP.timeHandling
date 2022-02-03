@@ -17,6 +17,7 @@
 #endif
 
 #include <time.h> 
+#include <RTClib.h> 
 #if defined(ESP32)
 #include <WiFi.h>
 // #include <FreeRTOS.h>
@@ -26,7 +27,6 @@
 #endif
 // Go back to src folder of sketch
 #include "../../multiLogger/src/multiLogger.h"
-#include "../../DS3231_RTC/src/DS3231_RTC.h"
 
 #define _MAX_TIME_STR_LENGTH 42
 #define _MAX_DOW_STR_LENGTH 10
@@ -55,6 +55,7 @@ struct Timestamp {
   uint32_t milliSeconds;
 } ;
 
+
 enum class Weekday{SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THRUSDAY, FRIDAY, SATURDAY};
 
 static const char * const WEEKDAYS[] = {
@@ -69,7 +70,6 @@ class TimeHandler {
   public:
     // Constructor
     TimeHandler(char * ntpServerName, int locationOffset, 
-                Rtc * rtc=NULL, // optional rtc 
                 void (*ntpSyncCB)(unsigned int)=NULL, // optional ntp sync callback
                 DST dst={ true, 7, 3, 25, 7, 10, 25, 3600}, MultiLogger * logger=NULL ); // optional Daylight saving time struct. Default: Germany
 
@@ -132,9 +132,6 @@ class TimeHandler {
 
     // Try to get accurate time over NTP
     bool _getTimeNTP();
-
-    // RTC object, which is updated and synced by this class
-    Rtc * _rtc; // Rtc object 
 
 #if defined(ESP32)
     // Task handle for the background sync

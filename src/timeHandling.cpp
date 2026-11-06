@@ -26,6 +26,8 @@ TimeHandler::TimeHandler(char * ntpServerName, int locationOffset, Rtc * rtc, vo
   _ntpTime.seconds = 0;
   _ntpTime.milliSeconds = 0;
   _lastNTPTry = millis();
+  _tsD1 = 0;
+  _tsD2 = 0;
   _ntpSyncCB = ntpSyncCB;
   _dst = dst;
   this->logger = logger;
@@ -120,7 +122,7 @@ bool TimeHandler::updateNTPTime() {
 
 // _________________________________________________________________________
 void TimeHandler::update() {
-  int32_t delta = millis()-_ntpValidMillis;
+  uint32_t delta = millis()-_ntpValidMillis;
   if (delta > NTP_UPDATE_INTV && millis()-_lastNTPTry > NTP_TRY_INTV) {
     _lastNTPTry = millis();
     if (WiFi.status() == WL_CONNECTED and WiFi.isConnected()){
@@ -152,7 +154,7 @@ void TimeHandler::_startUpdateNTPTime(void * pvParameters) {
 // _________________________________________________________________________
 bool TimeHandler::_updateNTPTime() {
   bool success = _getTimeNTP();
-  int32_t delta = millis()-_ntpValidMillis;
+  uint32_t delta = millis()-_ntpValidMillis;
 
   _currentTime.milliSeconds = _ntpTime.milliSeconds + delta%1000;
   _currentTime.seconds = _ntpTime.seconds + delta/1000 + _currentTime.milliSeconds/1000;
@@ -169,7 +171,7 @@ bool TimeHandler::_updateNTPTime() {
     // Calculate new boundaries for DST
     // TODO: Is this correct?
     int startDay = _dst.startAfterDay + (7 + _dst.startdayOfWeek - _dow(ntpTime.year(), _dst.startMon, _dst.startAfterDay))%7;
-    int stopDay = _dst.startAfterDay + (7 + _dst.stopdayOfWeek - _dow(ntpTime.year(), _dst.stopMon, _dst.stopAfterDay))%7;
+    int stopDay = _dst.stopAfterDay + (7 + _dst.stopdayOfWeek - _dow(ntpTime.year(), _dst.stopMon, _dst.stopAfterDay))%7;
     _tsD1 = DateTime(ntpTime.year(), _dst.startMon, startDay, 1, 0, 0).unixtime();
     _tsD2 = DateTime(ntpTime.year(), _dst.stopMon, stopDay, 1, 0, 0).unixtime();
 
@@ -238,7 +240,7 @@ bool TimeHandler::_getTimeNTP() {
     yield();
     #endif
   }
-  if (!cb) {
+  if (cb < PACKET_SIZE_NTP) {
     if (logger != NULL) logger->log(WARNING, "No NTP response yet");
     return false;
   }
